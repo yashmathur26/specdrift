@@ -1,18 +1,18 @@
 # SPECDRIFT
 
-**A spectral blur effect that slows how frequency bins reach their target magnitude — smearing transients into hazy, diffused textures.**
+**A spectral blur plugin. Instead of each frequency bin jumping straight to the volume it needs, it gets there slowly. That's the blur.**
 
 ---
 
 ## About
 
-Specdrift works in the frequency domain: audio is split into bins, and each bin's magnitude is smoothed toward its target level instead of jumping instantly. That slowdown is what creates the blur — transients smear and the sound takes on a washed-out, spectral character.
+When you look at audio spectrally, every point in the field is a bin. When that bin needs volume, it rises to a certain magnitude. Specdrift blurs that process. Instead of going straight to the magnitude needed, it slows down, so the sound smears and feels more blurred.
 
-**Blur** controls how slowly magnitudes follow the input. **Tilt** biases that smoothing toward lower or higher frequencies. **Random** gives each bin its own blur amount so neighboring frequencies move at different rates, making the texture feel alive rather than uniform. **Gate** is a spectral noise gate that quiets bins below a threshold. **Mix** blends the processed signal with the dry input (delay-compensated so they stay in phase). **Low Cut** and **High Cut** trim the wet path and output so blur doesn't muddy your subs or harsh highs. **Input** and **Output** gain round out level control at the ends of the chain. An expandable spectral view shows a live spectrogram for monitoring what the effect is doing to the spectrum.
+**Blur** is how slow that process is. **Tilt** lets you blur more on the lows or the highs, gradually across the spectrum. **Random** is important because it randomizes how much each bin gets blurred, so every frequency reacts a little differently. **Gate** is a spectral gate built into the plugin. **Mix** blends the blurred audio with the normal dry signal. **Low Cut** and **High Cut** keep the blurring from messing up your subs and highs. **Input** and **Output** are just gain. There's also an expandable spectral view with a live spectrogram so you can see what's happening.
 
-Planned next: a feedback loop, saturation, delay, and more spectral processing — attack/release shaping, grain, stereo width, and a fully working drawable blur curve over frequency.
+Still want to add a feedback loop, saturation, delay, and more spectral processing stuff like attack/release, grain, stereo width, and a drawable curve that actually works over frequency.
 
-**Status:** Beta — macOS (VST3, AU, Standalone). Windows build not tested yet.
+**Status:** Beta. macOS (VST3, AU, Standalone). Windows not tested yet.
 
 ---
 
