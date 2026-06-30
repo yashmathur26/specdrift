@@ -1,12 +1,16 @@
 # SPECDRIFT
 
-**[Add your one-line description here.]**
+**A spectral blur effect that slows how frequency bins reach their target magnitude — smearing transients into hazy, diffused textures.**
 
 ---
 
 ## About
 
-**[Add 2–4 sentences in your own words: why you built this, what you were going for, what stage it's at.]**
+Specdrift works in the frequency domain: audio is split into bins, and each bin's magnitude is smoothed toward its target level instead of jumping instantly. That slowdown is what creates the blur — transients smear and the sound takes on a washed-out, spectral character.
+
+**Blur** controls how slowly magnitudes follow the input. **Tilt** biases that smoothing toward lower or higher frequencies. **Random** gives each bin its own blur amount so neighboring frequencies move at different rates, making the texture feel alive rather than uniform. **Gate** is a spectral noise gate that quiets bins below a threshold. **Mix** blends the processed signal with the dry input (delay-compensated so they stay in phase). **Low Cut** and **High Cut** trim the wet path and output so blur doesn't muddy your subs or harsh highs. **Input** and **Output** gain round out level control at the ends of the chain. An expandable spectral view shows a live spectrogram for monitoring what the effect is doing to the spectrum.
+
+Planned next: a feedback loop, saturation, delay, and more spectral processing — attack/release shaping, grain, stereo width, and a fully working drawable blur curve over frequency.
 
 **Status:** Beta — macOS (VST3, AU, Standalone). Windows build not tested yet.
 
