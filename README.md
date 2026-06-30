@@ -25,16 +25,22 @@ Still want to add a feedback loop, saturation, delay, and more spectral processi
 
 ## Download (beta)
 
+**[Download Specdrift v1.0.0-beta for macOS](https://github.com/yashmathur26/specdrift/releases/download/v1.0.0-beta/Specdrift-v1.0.0-beta-macOS.zip)** (VST3, AU, Standalone in one zip)
+
 | Platform | Format | Notes |
 |----------|--------|-------|
-| macOS | VST3 / AU / Standalone | Build from source below, or [add GitHub Release link if you upload builds] |
+| macOS | VST3 / AU / Standalone | [Latest release](https://github.com/yashmathur26/specdrift/releases/latest) or build from source below |
 
 **Install (macOS):**
 
-1. Copy `Specdrift.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
-2. Copy `Specdrift.component` to `~/Library/Audio/Plug-Ins/Components/` (AU)
-3. Rescan plugins in your DAW
-4. If macOS blocks the plugin: System Settings → Privacy & Security → Allow, or right-click → Open (Standalone `.app`)
+1. Download and unzip `Specdrift-v1.0.0-beta-macOS.zip`
+2. Copy `Specdrift.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
+3. Copy `Specdrift.component` to `~/Library/Audio/Plug-Ins/Components/` (AU)
+4. Or run `Specdrift.app` as the standalone version
+5. Rescan plugins in your DAW
+6. If macOS blocks the plugin: System Settings → Privacy & Security → Allow, or right-click → Open
+
+Unsigned beta build. macOS may warn on first open.
 
 **Tested in:** [Add DAWs you used, e.g. Logic, Reaper]
 
