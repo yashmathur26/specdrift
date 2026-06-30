@@ -1,0 +1,25 @@
+# Build output
+build/
+
+# macOS
+.DS_Store
+*.xcuserstate
+*.xccheckout
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# CMake
+CMakeUserPresets.json
+
+# Reference / local research (large, not required to build)
+reference_files/
+
+# Optional: uncomment if you do not want internal dev notes on GitHub
+# RULES.md
+# SPECDRIFT_BUG_FIX_PROMPT.md
+# SPECDRIFT_FEEDBACK_ROADMAP.md
+# SPECDRIFT_FEEDBACK_ROADMAP (1).md

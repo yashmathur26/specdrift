@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specdrift — UI Mockup v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #1a1a22;
+    --panel: #212129;
+    --surface: #28282f;
+    --border: #333340;
+    --text: #b8b8cc;
+    --dim: #555568;
+    --label: #777790;
+    
+    /* Each knob gets its own color identity like KNOCK */
+    --blur-color: #4488ff;
+    --blur-glow: rgba(68,136,255,0.15);
+    --tilt-color: #ff8844;
+    --tilt-glow: rgba(255,136,68,0.15);
+    --random-color: #cc44ff;
+    --random-glow: rgba(204,68,255,0.15);
+    --gate-color: #44ddaa;
+    --gate-glow: rgba(68,221,170,0.15);
+    --mix-color: #ff4488;
+    --mix-glow: rgba(255,68,136,0.15);
+    
+    --accent: #00ddb3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111118;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    overflow-y: auto;
+    padding: 40px 20px;
+  }
+
+  .plugin {
+    background: var(--bg);
+    border-radius: 12px;
+    width: 680px;
+    overflow: hidden;
+    box-shadow: 0 30px 100px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+    position: relative;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    padding: 18px 28px 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: #e8e8f0;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .preset-label {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ===== ORB ROW ===== */
+  .orbs-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px 16px;
+  }
+
+  .orb-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 130px;
+  }
+
+  .orb-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    cursor: pointer;
+  }
+
+  .orb {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .orb:hover { transform: scale(1.04); }
+
+  /* Orb inner glow + gradient */
+  .orb-blur .orb { background: radial-gradient(circle at 40% 40%, rgba(68,136,255,0.35), rgba(68,136,255,0.08) 60%, rgba(68,136,255,0.02)); }
+  .orb-tilt .orb { background: radial-gradient(circle at 40% 40%, rgba(255,136,68,0.35), rgba(255,136,68,0.08) 60%, rgba(255,136,68,0.02)); }
+  .orb-random .orb { background: radial-gradient(circle at 40% 40%, rgba(204,68,255,0.35), rgba(204,68,255,0.08) 60%, rgba(204,68,255,0.02)); }
+  .orb-gate .orb { background: radial-gradient(circle at 40% 40%, rgba(68,221,170,0.35), rgba(68,221,170,0.08) 60%, rgba(68,221,170,0.02)); }
+  .orb-mix .orb { background: radial-gradient(circle at 40% 40%, rgba(255,68,136,0.35), rgba(255,68,136,0.08) 60%, rgba(255,68,136,0.02)); }
+
+  /* Ring indicator inside orb */
+  .orb-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+
+  /* Arc indicator (SVG) */
+  .orb-arc {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .orb-arc circle {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .orb-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  }
+
+  .orb-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--label);
+    font-weight: 500;
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 28px;
+  }
+
+  /* ===== EXPAND TOGGLE ===== */
+  .expand-toggle {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .expand-toggle:hover { background: rgba(255,255,255,0.02); }
+  .expand-label {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+  }
+  .expand-arrow {
+    font-size: 8px;
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+
+  /* ===== EXPANDED SECTION ===== */
+  .expanded {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .expanded.open {
+    max-height: 500px;
+  }
+
+  .viz-wrapper {
+    padding: 12px 20px 8px;
+  }
+
+  .viz-box {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111118;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  #vizCanvas {
+    width: 100%;
+    display: block;
+    cursor: default;
+  }
+
+  .viz-mode-badge {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dim);
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+  }
+  .viz-mode-badge.active { color: var(--accent); }
+
+  .viz-hint {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--dim);
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    display: none;
+  }
+
+  /* Freq axis labels */
+  .freq-axis {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 4px 0;
+  }
+  .freq-axis span {
+    font-size: 7px;
+    color: #333344;
+    letter-spacing: 0.5px;
+  }
+
+  /* Controls under viz */
+  .viz-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px 14px;
+  }
+  .viz-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .viz-btn:hover { border-color: #555; color: var(--text); }
+  .viz-btn.on { border-color: var(--accent); color: var(--accent); background: rgba(0,221,179,0.06); }
+  .flex-spacer { flex: 1; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    padding: 10px 28px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.03);
+  }
+  .footer-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-label {
+    font-size: 8px;
+    color: #333344;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .footer-slider {
+    width: 60px;
+    height: 2px;
+    background: #252530;
+    border-radius: 1px;
+    position: relative;
+  }
+  .footer-slider-fill {
+    position: absolute;
+    height: 100%;
+    border-radius: 1px;
+    background: var(--dim);
+  }
+  .footer-slider-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 1px solid var(--bg);
+  }
+  .footer-val {
+    font-size: 8px;
+    color: var(--dim);
+    min-width: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="plugin">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">Specdrift</div>
+    <div class="header-right">
+      <span class="preset-label">Default</span>
+    </div>
+  </div>
+
+  <!-- ORB ROW -->
+  <div class="orbs-row">
+    <!-- BLUR -->
+    <div class="orb-group">
+      <div class="orb-container orb-blur">
+        <div class="orb">
+          <div class="orb-ring"></div>
+        </div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="rgba(68,136,255,0.08)" stroke-dasharray="301.6" stroke-dashoffset="0"/>
+          <circle cx="55" cy="55" r="48" stroke="#4488ff" stroke-dasharray="301.6" stroke-dashoffset="175" transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="orb-value">42</div>
+      </div>
+      <div class="orb-label">Blur</div>
+    </div>
+
+    <!-- TILT -->
+    <div class="orb-group">
+      <div class="orb-container orb-tilt">
+        <div class="orb">
+          <div class="orb-ring"></div>
+        </div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="rgba(255,136,68,0.08)" stroke-dasharray="301.6" stroke-dashoffset="0"/>
+          <circle cx="55" cy="55" r="48" stroke="#ff8844" stroke-dasharray="301.6" stroke-dashoffset="225" transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="orb-value">+25</div>
+      </div>
+      <div class="orb-label">Tilt</div>
+    </div>
+
+    <!-- RANDOM -->
+    <div class="orb-group">
+      <div class="orb-container orb-random">
+        <div class="orb">
+          <div class="orb-ring"></div>
+        </div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="rgba(204,68,255,0.08)" stroke-dasharray="301.6" stroke-dashoffset="0"/>
+          <circle cx="55" cy="55" r="48" stroke="#cc44ff" stroke-dasharray="301.6" stroke-dashoffset="195" transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="orb-value">35</div>
+      </div>
+      <div class="orb-label">Random</div>
+    </div>
+
+    <!-- GATE -->
+    <div class="orb-group">
+      <div class="orb-container orb-gate">
+        <div class="orb">
+          <div class="orb-ring"></div>
+        </div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="rgba(68,221,170,0.08)" stroke-dasharray="301.6" stroke-dashoffset="0"/>
+          <circle cx="55" cy="55" r="48" stroke="#44ddaa" stroke-dasharray="301.6" stroke-dashoffset="265" transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="orb-value">12</div>
+      </div>
+      <div class="orb-label">Gate</div>
+    </div>
+
+    <!-- MIX -->
+    <div class="orb-group">
+      <div class="orb-container orb-mix">
+        <div class="orb">
+          <div class="orb-ring"></div>
+        </div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" stroke="rgba(255,68,136,0.08)" stroke-dasharray="301.6" stroke-dashoffset="0"/>
+          <circle cx="55" cy="55" r="48" stroke="#ff4488" stroke-dasharray="301.6" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="orb-value">100</div>
+      </div>
+      <div class="orb-label">Mix</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- EXPAND TOGGLE -->
+  <div class="expand-toggle" id="expandBtn">
+    <div class="expand-label">
+      <span id="expandText">Spectral View</span>
+      <span class="expand-arrow" id="expandArrow">▾</span>
+    </div>
+  </div>
+
+  <!-- EXPANDED -->
+  <div class="expanded" id="expandedPanel">
+    <div class="viz-wrapper">
+      <div class="viz-box">
+        <div class="viz-mode-badge" id="modeBadge">Spectrogram</div>
+        <div class="viz-hint" id="vizHint">Click to add · right-click to delete</div>
+        <canvas id="vizCanvas" height="220"></canvas>
+        <div class="freq-axis">
+          <span>20</span><span>50</span><span>100</span><span>200</span><span>500</span><span>1k</span><span>2k</span><span>5k</span><span>10k</span><span>20k</span>
+        </div>
+      </div>
+    </div>
+    <div class="viz-bar">
+      <button class="viz-btn on" id="btnKnobs">Knobs</button>
+      <button class="viz-btn" id="btnCurve">Draw Curve</button>
+      <div class="flex-spacer"></div>
+      <button class="viz-btn" id="btnClear">Clear</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-item">
+      <span class="footer-label">In</span>
+      <div class="footer-slider">
+        <div class="footer-slider-fill" style="width:75%; background:#555568;"></div>
+        <div class="footer-slider-dot" style="left:75%;"></div>
+      </div>
+    </div>
+    <div class="footer-item">
+      <span class="footer-label">Dry</span>
+      <div class="footer-slider" style="width:80px;">
+        <div class="footer-slider-fill" style="width:100%; background: linear-gradient(90deg, #333, #555);"></div>
+        <div class="footer-slider-dot" style="left:100%;"></div>
+      </div>
+      <span class="footer-label">Wet</span>
+    </div>
+    <div class="footer-item">
+      <span class="footer-label">Out</span>
+      <div class="footer-slider">
+        <div class="footer-slider-fill" style="width:75%; background:#555568;"></div>
+        <div class="footer-slider-dot" style="left:75%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// EXPAND TOGGLE
+// ============================================
+let expanded = false;
+const expandBtn = document.getElementById('expandBtn');
+const expandedPanel = document.getElementById('expandedPanel');
+const expandArrow = document.getElementById('expandArrow');
+
+expandBtn.addEventListener('click', () => {
+  expanded = !expanded;
+  expandedPanel.classList.toggle('open', expanded);
+  expandArrow.style.transform = expanded ? 'rotate(180deg)' : '';
+  if (expanded && !running) startLoop();
+});
+
+// ============================================
+// CURVE MODE
+// ============================================
+let curveMode = false;
+const btnKnobs = document.getElementById('btnKnobs');
+const btnCurve = document.getElementById('btnCurve');
+const modeBadge = document.getElementById('modeBadge');
+const vizHint = document.getElementById('vizHint');
+const canvas = document.getElementById('vizCanvas');
+
+btnKnobs.addEventListener('click', () => {
+  curveMode = false;
+  btnKnobs.classList.add('on');
+  btnCurve.classList.remove('on');
+  modeBadge.textContent = 'Spectrogram';
+  modeBadge.classList.remove('active');
+  vizHint.style.display = 'none';
+  canvas.style.cursor = 'default';
+});
+btnCurve.addEventListener('click', () => {
+  curveMode = true;
+  btnCurve.classList.add('on');
+  btnKnobs.classList.remove('on');
+  modeBadge.textContent = 'Curve · Spectrogram';
+  modeBadge.classList.add('active');
+  vizHint.style.display = 'block';
+  canvas.style.cursor = 'crosshair';
+});
+document.getElementById('btnClear').addEventListener('click', () => { points = []; });
+
+// ============================================
+// CANVAS
+// ============================================
+const dpr = window.devicePixelRatio || 1;
+let W, H, ctx;
+
+function setupCanvas() {
+  const r = canvas.getBoundingClientRect();
+  W = r.width; H = r.height;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+}
+
+// ============================================
+// SPECTROGRAM ENGINE
+// ============================================
+const COLS = 240;
+const ROWS = 100;
+let specBuf = [];
+for (let c = 0; c < COLS; c++) specBuf.push(new Float32Array(ROWS));
+
+const seeds = new Float32Array(ROWS);
+for (let i = 0; i < ROWS; i++) seeds[i] = Math.random() * 2 - 1;
+
+const speeds = new Float32Array(ROWS);
+function calcSpeeds() {
+  for (let i = 0; i < ROWS; i++) {
+    const f = i / ROWS;
+    let s = 1 - 0.42;
+    s += 0.25 * (f - 0.5);
+    s += 0.35 * seeds[i] * 0.4;
+    speeds[i] = Math.max(0.008, Math.min(1, s));
+  }
+}
+calcSpeeds();
+
+const prev = new Float32Array(ROWS);
+let phase = 0;
+
+function simInput() {
+  const s = new Float32Array(ROWS);
+  phase += 0.025;
+  for (let i = 0; i < ROWS; i++) {
+    const f = i / ROWS;
+    let v = Math.exp(-f * 2.2) * 0.45;
+    v += Math.max(0, Math.sin(phase + f * 12)) * 0.25 * Math.exp(-f * 3);
+    v += Math.max(0, Math.sin(phase * 0.6 + f * 25)) * 0.18;
+    if (Math.random() < 0.008) v += 0.5 * Math.exp(-f * 1.5);
+    if (f > 0.65 && Math.random() < 0.025) v += 0.35;
+    s[i] = Math.max(0, Math.min(1, v));
+  }
+  return s;
+}
+
+function processFrame() {
+  const inp = simInput();
+  const out = new Float32Array(ROWS);
+  for (let i = 0; i < ROWS; i++) {
+    prev[i] += speeds[i] * (inp[i] - prev[i]);
+    let m = prev[i];
+    if (m < 0.06) m *= 0.08;
+    out[i] = m;
+  }
+  specBuf.shift();
+  specBuf.push(out);
+}
+
+// ============================================
+// DRAWABLE CURVE
+// ============================================
+let points = [];
+const PR = 6;
+let dragIdx = -1;
+
+canvas.addEventListener('mousedown', e => {
+  if (!curveMode) return;
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+
+  for (let i = 0; i < points.length; i++) {
+    if (Math.hypot(mx - points[i].x * W, my - points[i].y * H) < PR * 2.5) {
+      if (e.button === 2) { points.splice(i, 1); return; }
+      dragIdx = i; return;
+    }
+  }
+  if (e.button === 0) {
+    points.push({ x: mx / W, y: my / H });
+    points.sort((a, b) => a.x - b.x);
+    for (let i = 0; i < points.length; i++) {
+      if (Math.abs(points[i].x - mx / W) < 0.005) { dragIdx = i; break; }
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!curveMode) return;
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  if (dragIdx >= 0) {
+    points[dragIdx].x = Math.max(0, Math.min(1, mx / W));
+    points[dragIdx].y = Math.max(0, Math.min(1, my / H));
+    points.sort((a, b) => a.x - b.x);
+    for (let i = 0; i < points.length; i++) {
+      if (Math.abs(points[i].x - mx / W) < 0.02 && Math.abs(points[i].y - my / H) < 0.02) {
+        dragIdx = i; break;
+      }
+    }
+  }
+});
+canvas.addEventListener('mouseup', () => dragIdx = -1);
+canvas.addEventListener('mouseleave', () => dragIdx = -1);
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ============================================
+// COLORS
+// ============================================
+function specColor(v) {
+  v = Math.max(0, Math.min(1, v));
+  // Very dark base → deep blue → teal → cyan → white
+  const r0=8, g0=8, b0=18;      // near black
+  const r1=15, g1=30, b1=70;     // deep blue
+  const r2=20, g2=90, b2=110;    // teal
+  const r3=50, g3=190, b3=180;   // cyan
+  const r4=220, g4=255, b4=250;  // hot white
+
+  let r,g,b;
+  if (v < 0.2) {
+    const t = v / 0.2;
+    r = r0 + (r1-r0)*t; g = g0 + (g1-g0)*t; b = b0 + (b1-b0)*t;
+  } else if (v < 0.45) {
+    const t = (v-0.2)/0.25;
+    r = r1 + (r2-r1)*t; g = g1 + (g2-g1)*t; b = b1 + (b2-b1)*t;
+  } else if (v < 0.7) {
+    const t = (v-0.45)/0.25;
+    r = r2 + (r3-r2)*t; g = g2 + (g3-g2)*t; b = b2 + (b3-b2)*t;
+  } else {
+    const t = (v-0.7)/0.3;
+    r = r3 + (r4-r3)*t; g = g3 + (g4-g3)*t; b = b3 + (b4-b3)*t;
+  }
+  return `rgb(${r|0},${g|0},${b|0})`;
+}
+
+// ============================================
+// RENDER
+// ============================================
+function render() {
+  processFrame();
+  ctx.fillStyle = '#0c0c14';
+  ctx.fillRect(0, 0, W, H);
+
+  const cw = W / COLS;
+  const rh = H / ROWS;
+
+  // Spectrogram
+  for (let c = 0; c < COLS; c++) {
+    for (let r = 0; r < ROWS; r++) {
+      const v = specBuf[c][r];
+      if (v < 0.015) continue;
+      ctx.fillStyle = specColor(v * 1.6);
+      ctx.fillRect(c * cw, H - (r + 1) * rh, cw + 0.5, rh + 0.5);
+    }
+  }
+
+  // Subtle freq grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.015)';
+  ctx.lineWidth = 0.5;
+  [0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.92].forEach(f => {
+    const y = H * (1 - f);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  });
+
+  // Speed indicator bar (right edge)
+  for (let i = 0; i < ROWS; i++) {
+    const y = H - (i + 1) * rh;
+    const a = 0.05 + speeds[i] * 0.35;
+    ctx.fillStyle = `rgba(0,221,179,${a})`;
+    ctx.fillRect(W - 3, y, 3, rh + 0.5);
+  }
+
+  // Curve overlay
+  if (curveMode && points.length > 0) {
+    // Shaded area
+    ctx.beginPath();
+    ctx.moveTo(0, points[0].y * H);
+    for (let i = 0; i < points.length; i++) {
+      const px = points[i].x * W, py = points[i].y * H;
+      if (i === 0) { ctx.lineTo(px, py); continue; }
+      const prev = points[i - 1];
+      const cx = (prev.x * W + px) / 2;
+      ctx.bezierCurveTo(cx, prev.y * H, cx, py, px, py);
+    }
+    ctx.lineTo(W, points[points.length - 1].y * H);
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+    ctx.fillStyle = 'rgba(0,221,179,0.04)';
+    ctx.fill();
+
+    // Curve line
+    ctx.beginPath();
+    ctx.moveTo(0, points[0].y * H);
+    for (let i = 0; i < points.length; i++) {
+      const px = points[i].x * W, py = points[i].y * H;
+      if (i === 0) { ctx.lineTo(px, py); continue; }
+      const prev = points[i - 1];
+      const cx = (prev.x * W + px) / 2;
+      ctx.bezierCurveTo(cx, prev.y * H, cx, py, px, py);
+    }
+    ctx.lineTo(W, points[points.length - 1].y * H);
+    ctx.strokeStyle = 'rgba(0,221,179,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Glow
+    ctx.strokeStyle = 'rgba(0,221,179,0.12)';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // Points
+    points.forEach((p, i) => {
+      const px = p.x * W, py = p.y * H;
+      const hot = i === dragIdx;
+      if (hot) {
+        ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,221,179,0.08)'; ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(px, py, hot ? 7 : 5.5, 0, Math.PI * 2);
+      ctx.fillStyle = hot ? '#00ffcc' : '#00ddb3';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(12,12,20,0.8)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // Labels
+    ctx.font = '500 7px JetBrains Mono';
+    ctx.fillStyle = 'rgba(0,221,179,0.25)';
+    ctx.fillText('▲ LESS BLUR', 6, 14);
+    ctx.fillText('▼ MORE BLUR', 6, H - 6);
+  }
+}
+
+// ============================================
+// LOOP
+// ============================================
+let running = false;
+function startLoop() {
+  running = true;
+  setupCanvas();
+  (function loop() {
+    if (!expanded) { running = false; return; }
+    render();
+    requestAnimationFrame(loop);
+  })();
+}
+
+window.addEventListener('resize', () => { if (expanded) setupCanvas(); });
+
+// Auto-expand for demo
+setTimeout(() => expandBtn.click(), 400);
+</script>
+
+</body>
+</html>

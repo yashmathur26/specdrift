@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specdrift</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #14142a;
+    --panel: #1a1a35;
+    --surface: #222240;
+    --border: #2e2e50;
+    --text: #c8c8e8;
+    --dim: #6a6a9a;
+    --label: #8a8ab8;
+    /* Blue → purple gradient (5 orbs) */
+    --orb-1: #3d7aff;
+    --orb-2: #6366f1;
+    --orb-3: #8b5cf6;
+    --orb-4: #a855f7;
+    --orb-5: #c084fc;
+    --accent: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(135deg, #0f0f1e 0%, #1a0a2e 50%, #0f0f1e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .plugin {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%);
+    border-radius: 12px;
+    width: 680px;
+    overflow: hidden;
+    box-shadow: 0 30px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(125,100,255,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .header {
+    padding: 18px 28px 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: #e8e8f0;
+  }
+  .preset-label {
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .orbs-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px 16px;
+  }
+
+  .orb-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 130px;
+  }
+
+  .orb-container {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    cursor: grab;
+    user-select: none;
+  }
+  .orb-container:active { cursor: grabbing; }
+
+  .orb {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .orb:hover { transform: scale(1.04); }
+
+  .orb-blur .orb { background: radial-gradient(circle at 40% 40%, rgba(61,122,255,0.4), rgba(61,122,255,0.1) 60%, rgba(61,122,255,0.02)); }
+  .orb-tilt .orb { background: radial-gradient(circle at 40% 40%, rgba(99,102,241,0.4), rgba(99,102,241,0.1) 60%, rgba(99,102,241,0.02)); }
+  .orb-random .orb { background: radial-gradient(circle at 40% 40%, rgba(139,92,246,0.4), rgba(139,92,246,0.1) 60%, rgba(139,92,246,0.02)); }
+  .orb-gate .orb { background: radial-gradient(circle at 40% 40%, rgba(168,85,247,0.4), rgba(168,85,247,0.1) 60%, rgba(168,85,247,0.02)); }
+  .orb-mix .orb { background: radial-gradient(circle at 40% 40%, rgba(192,132,252,0.4), rgba(192,132,252,0.1) 60%, rgba(192,132,252,0.02)); }
+
+  .orb-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.08);
+  }
+
+  .orb-arc {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .orb-arc circle {
+    fill: none;
+    stroke-linecap: round;
+  }
+  /* Full circle ring (very subtle track) */
+  .orb-arc .orb-arc-circle {
+    stroke-width: 1.5;
+    stroke: rgba(80, 140, 255, 0.08);
+    stroke-dasharray: 326.7;
+    stroke-dashoffset: 0;
+  }
+  /* 270° arc track from 7:30 up and around to 4:30 (90° gap at bottom) */
+  .orb-arc .orb-arc-bg {
+    stroke-width: 2;
+    stroke-dasharray: 245 81.7;
+  }
+  /* 270° arc fill with neon glow (filter set inline per SVG) */
+  .orb-arc .orb-arc-fill {
+    stroke-width: 2.5;
+  }
+
+  .orb-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  }
+
+  .orb-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--label);
+    font-weight: 500;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.3), transparent);
+    margin: 0 28px;
+  }
+
+  .footer {
+    padding: 8px 28px 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    border-top: 1px solid rgba(255,255,255,0.03);
+  }
+  .footer-slider-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 140px;
+  }
+  .footer-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 8px;
+    color: var(--dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .footer-slider-container {
+    position: relative;
+    height: 14px;
+    flex: 1;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+  }
+  .footer-slider-track {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1.5px;
+    background: rgba(80, 100, 150, 0.3);
+    border-radius: 1px;
+  }
+  .footer-slider-fill {
+    position: absolute;
+    left: 0;
+    height: 1.5px;
+    background: rgba(139, 92, 246, 0.7);
+    border-radius: 1px;
+    pointer-events: none;
+  }
+  .footer-slider-thumb {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    cursor: grab;
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+  }
+  .footer-slider-thumb:hover {
+    transform: translateX(-50%) scale(1.3);
+  }
+  .footer-slider-thumb:active { cursor: grabbing; }
+  .footer-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--dim);
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<div class="plugin">
+  <div class="header">
+    <div class="logo">Specdrift</div>
+    <div class="preset-label">Default</div>
+  </div>
+
+  <div class="orbs-row">
+    <div class="orb-group">
+      <div class="orb-container orb-blur" data-param="blur">
+        <div class="orb"><div class="orb-ring"></div></div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <defs>
+            <filter id="neonGlowBlur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feColorMatrix in="blur" result="glow" type="matrix" values="0 0 0 0 0.15  0 0.5 0 0 0.6  0 0 1 0 1  0 0 0 0.6 0"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle class="orb-arc-circle" cx="55" cy="55" r="52"/>
+          <circle class="orb-arc-bg" cx="55" cy="55" r="52" stroke="rgba(61,122,255,0.2)" transform="rotate(135, 55, 55)"/>
+          <circle class="orb-arc-fill" cx="55" cy="55" r="52" stroke="#3d7aff" stroke-dasharray="0 326.7" transform="rotate(135, 55, 55)" filter="url(#neonGlowBlur)"/>
+        </svg>
+        <div class="orb-value" id="val-blur">0</div>
+      </div>
+      <div class="orb-label">Blur</div>
+    </div>
+    <div class="orb-group">
+      <div class="orb-container orb-tilt" data-param="tilt">
+        <div class="orb"><div class="orb-ring"></div></div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <defs>
+            <filter id="neonGlowTilt" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feColorMatrix in="blur" result="glow" type="matrix" values="0 0 0 0 0.15  0 0.5 0 0 0.6  0 0 1 0 1  0 0 0 0.6 0"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle class="orb-arc-circle" cx="55" cy="55" r="52"/>
+          <circle class="orb-arc-bg" cx="55" cy="55" r="52" stroke="rgba(99,102,241,0.2)" transform="rotate(135, 55, 55)"/>
+          <circle class="orb-arc-fill" cx="55" cy="55" r="52" stroke="#6366f1" stroke-dasharray="0 326.7" transform="rotate(135, 55, 55)" filter="url(#neonGlowTilt)"/>
+        </svg>
+        <div class="orb-value" id="val-tilt">0</div>
+      </div>
+      <div class="orb-label">Tilt</div>
+    </div>
+    <div class="orb-group">
+      <div class="orb-container orb-random" data-param="random">
+        <div class="orb"><div class="orb-ring"></div></div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <defs>
+            <filter id="neonGlowRandom" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feColorMatrix in="blur" result="glow" type="matrix" values="0 0 0 0 0.15  0 0.5 0 0 0.6  0 0 1 0 1  0 0 0 0.6 0"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle class="orb-arc-circle" cx="55" cy="55" r="52"/>
+          <circle class="orb-arc-bg" cx="55" cy="55" r="52" stroke="rgba(139,92,246,0.2)" transform="rotate(135, 55, 55)"/>
+          <circle class="orb-arc-fill" cx="55" cy="55" r="52" stroke="#8b5cf6" stroke-dasharray="0 326.7" transform="rotate(135, 55, 55)" filter="url(#neonGlowRandom)"/>
+        </svg>
+        <div class="orb-value" id="val-random">0</div>
+      </div>
+      <div class="orb-label">Random</div>
+    </div>
+    <div class="orb-group">
+      <div class="orb-container orb-gate" data-param="gate">
+        <div class="orb"><div class="orb-ring"></div></div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <defs>
+            <filter id="neonGlowGate" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feColorMatrix in="blur" result="glow" type="matrix" values="0 0 0 0 0.15  0 0.5 0 0 0.6  0 0 1 0 1  0 0 0 0.6 0"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle class="orb-arc-circle" cx="55" cy="55" r="52"/>
+          <circle class="orb-arc-bg" cx="55" cy="55" r="52" stroke="rgba(168,85,247,0.2)" transform="rotate(135, 55, 55)"/>
+          <circle class="orb-arc-fill" cx="55" cy="55" r="52" stroke="#a855f7" stroke-dasharray="0 326.7" transform="rotate(135, 55, 55)" filter="url(#neonGlowGate)"/>
+        </svg>
+        <div class="orb-value" id="val-gate">0</div>
+      </div>
+      <div class="orb-label">Gate</div>
+    </div>
+    <div class="orb-group">
+      <div class="orb-container orb-mix" data-param="mix">
+        <div class="orb"><div class="orb-ring"></div></div>
+        <svg class="orb-arc" viewBox="0 0 110 110">
+          <defs>
+            <filter id="neonGlowMix" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+              <feColorMatrix in="blur" result="glow" type="matrix" values="0 0 0 0 0.15  0 0.5 0 0 0.6  0 0 1 0 1  0 0 0 0.6 0"/>
+              <feMerge>
+                <feMergeNode in="glow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle class="orb-arc-circle" cx="55" cy="55" r="52"/>
+          <circle class="orb-arc-bg" cx="55" cy="55" r="52" stroke="rgba(192,132,252,0.2)" transform="rotate(135, 55, 55)"/>
+          <circle class="orb-arc-fill" cx="55" cy="55" r="52" stroke="#c084fc" stroke-dasharray="0 326.7" transform="rotate(135, 55, 55)" filter="url(#neonGlowMix)"/>
+        </svg>
+        <div class="orb-value" id="val-mix">0</div>
+      </div>
+      <div class="orb-label">Mix</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="footer">
+    <div class="footer-slider-group" data-slider-param="inputGain">
+      <div class="footer-label">IN</div>
+      <div class="footer-slider-container">
+        <div class="footer-slider-track"></div>
+        <div class="footer-slider-fill" style="width: 50%;"></div>
+        <div class="footer-slider-thumb" style="left: 50%;"></div>
+      </div>
+      <div class="footer-value" id="val-inputGain">100%</div>
+    </div>
+    <div class="footer-slider-group" data-slider-param="outputGain">
+      <div class="footer-label">OUT</div>
+      <div class="footer-slider-container">
+        <div class="footer-slider-track"></div>
+        <div class="footer-slider-fill" style="width: 50%;"></div>
+        <div class="footer-slider-thumb" style="left: 50%;"></div>
+      </div>
+      <div class="footer-value" id="val-outputGain">100%</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+(async function() {
+  const CIRCUM = 2 * Math.PI * 52;
+  const ARC_LENGTH = CIRCUM * (270 / 360);
+
+  const platform = window.__JUCE__.initialisationData.__juce__platform[0];
+  const base = (platform === 'windows' || platform === 'android') ? 'https://juce.backend/' : 'juce://juce.backend/';
+
+  const { getSliderState } = await import(base + 'juce-index.js');
+
+  const orbParams = ['blur', 'tilt', 'random', 'gate', 'mix'];
+  const sliderParams = ['inputGain', 'outputGain'];
+
+  function formatOrbVal(paramId, state) {
+    if (paramId === 'tilt') {
+      const scaled = state.getScaledValue();
+      const pct = Math.round(scaled * 100);
+      return (pct >= 0 ? '+' : '') + pct;
+    }
+    const n = state.getNormalisedValue();
+    return String(Math.round(n * 100));
+  }
+
+  function formatSliderVal(paramId, state) {
+    if (paramId === 'inputGain' || paramId === 'outputGain') {
+      const scaled = state.getScaledValue();
+      return Math.round(scaled * 100) + '%';
+    }
+    const n = state.getNormalisedValue();
+    return Math.round(n * 100) + '%';
+  }
+
+  function updateArc(container, paramId, state) {
+    const fill = container.querySelector('.orb-arc-fill');
+    if (!fill) return;
+    if (paramId === 'tilt') {
+      const scaled = state.getScaledValue();
+      const norm = Math.max(0, Math.min(1, (scaled + 1) / 2));
+      fill.setAttribute('transform', 'rotate(135, 55, 55)');
+      fill.setAttribute('stroke-dashoffset', '0');
+      const drawLen = ARC_LENGTH * norm;
+      fill.setAttribute('stroke-dasharray', drawLen + ' ' + (CIRCUM - drawLen));
+      return;
+    }
+    const n = Math.max(0, Math.min(1, state.getNormalisedValue()));
+    const drawLen = ARC_LENGTH * n;
+    const gapLen = CIRCUM - drawLen;
+    fill.setAttribute('stroke-dasharray', drawLen + ' ' + gapLen);
+  }
+
+  function updateOrbDisplay(paramId, state) {
+    const valEl = document.getElementById('val-' + paramId);
+    const container = document.querySelector('.orb-container[data-param="' + paramId + '"]');
+    if (valEl) valEl.textContent = formatOrbVal(paramId, state);
+    if (container) updateArc(container, paramId, state);
+  }
+
+  function updateSliderDisplay(paramId, state) {
+    const group = document.querySelector('.footer-slider-group[data-slider-param="' + paramId + '"]');
+    if (!group) return;
+    const fill = group.querySelector('.footer-slider-fill');
+    const thumb = group.querySelector('.footer-slider-thumb');
+    const valEl = document.getElementById('val-' + paramId);
+    const n = state.getNormalisedValue();
+    const pct = (n * 100) + '%';
+    if (fill) fill.style.width = pct;
+    if (thumb) thumb.style.left = pct;
+    if (valEl) valEl.textContent = Math.round(n * 100) + '%';  // 0-100%
+  }
+
+  let draggingOrbParam = null;
+  let dragStartY = 0;
+  let dragStartNorm = 0;
+
+  let draggingSliderParam = null;
+  let sliderContainer = null;
+
+  orbParams.forEach(function(paramId) {
+    const state = getSliderState(paramId);
+    state.valueChangedEvent.addListener(function() {
+      updateOrbDisplay(paramId, state);
+    });
+    state.propertiesChangedEvent.addListener(function() {
+      updateOrbDisplay(paramId, state);
+    });
+    updateOrbDisplay(paramId, state);
+
+    const container = document.querySelector('.orb-container[data-param="' + paramId + '"]');
+    if (!container) return;
+
+    container.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      draggingOrbParam = paramId;
+      dragStartY = e.clientY;
+      dragStartNorm = paramId === 'tilt' ? (state.getScaledValue() + 1) / 2 : state.getNormalisedValue();
+      state.sliderDragStarted();
+    });
+
+    container.addEventListener('dblclick', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (paramId === 'tilt') {
+        state.setNormalisedValue(0.5);
+      } else {
+        state.setNormalisedValue(0);
+      }
+      updateOrbDisplay(paramId, state);
+    });
+  });
+
+  sliderParams.forEach(function(paramId) {
+    const state = getSliderState(paramId);
+    state.valueChangedEvent.addListener(function() {
+      updateSliderDisplay(paramId, state);
+    });
+    state.propertiesChangedEvent.addListener(function() {
+      updateSliderDisplay(paramId, state);
+    });
+    updateSliderDisplay(paramId, state);
+
+    const group = document.querySelector('.footer-slider-group[data-slider-param="' + paramId + '"]');
+    if (!group) return;
+    const sliderCont = group.querySelector('.footer-slider-container');
+    const thumb = group.querySelector('.footer-slider-thumb');
+
+    function startSliderDrag(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      draggingSliderParam = paramId;
+      sliderContainer = sliderCont;
+      state.sliderDragStarted();
+      updateSliderFromEvent(e);
+    }
+
+    sliderCont.addEventListener('mousedown', startSliderDrag);
+    thumb.addEventListener('mousedown', startSliderDrag);
+
+    group.addEventListener('dblclick', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (paramId === 'inputGain' || paramId === 'outputGain') {
+        state.setNormalisedValue(0.5);
+      } else {
+        state.setNormalisedValue(0);
+      }
+      updateSliderDisplay(paramId, state);
+    });
+  });
+
+  function updateSliderFromEvent(e) {
+    if (!sliderContainer || !draggingSliderParam) return;
+    const rect = sliderContainer.getBoundingClientRect();
+    let norm = (e.clientX - rect.left) / rect.width;
+    norm = Math.max(0, Math.min(1, norm));
+    const state = getSliderState(draggingSliderParam);
+    state.setNormalisedValue(norm);
+    updateSliderDisplay(draggingSliderParam, state);
+  }
+
+  document.addEventListener('mousemove', function(e) {
+    if (draggingOrbParam !== null) {
+      const state = getSliderState(draggingOrbParam);
+      const delta = dragStartY - e.clientY;
+      let norm = dragStartNorm + (delta / 100) * 1.0;
+      norm = Math.max(0, Math.min(1, norm));
+      state.setNormalisedValue(norm);
+      updateOrbDisplay(draggingOrbParam, state);
+    }
+    if (draggingSliderParam !== null) {
+      updateSliderFromEvent(e);
+    }
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (draggingOrbParam !== null) {
+      getSliderState(draggingOrbParam).sliderDragEnded();
+      draggingOrbParam = null;
+    }
+    if (draggingSliderParam !== null) {
+      getSliderState(draggingSliderParam).sliderDragEnded();
+      draggingSliderParam = null;
+      sliderContainer = null;
+    }
+  });
+
+  document.addEventListener('mouseleave', function() {
+    if (draggingOrbParam !== null) {
+      getSliderState(draggingOrbParam).sliderDragEnded();
+      draggingOrbParam = null;
+    }
+    if (draggingSliderParam !== null) {
+      getSliderState(draggingSliderParam).sliderDragEnded();
+      draggingSliderParam = null;
+      sliderContainer = null;
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
