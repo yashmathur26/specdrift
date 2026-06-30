@@ -1,38 +1,38 @@
 # SPECDRIFT
 
-<!-- Fill in: one line that names what this is (your words, not marketing fluff) -->
-**[One-line description — e.g. "A spectral blur audio plugin I built with JUCE."]**
+**[Add your one-line description here.]**
 
 ---
 
 ## About
 
-<!-- 2–4 sentences: why you made it, what problem or sound you were going for, what makes it yours -->
-[Your paragraph here.]
+**[Add 2–4 sentences in your own words: why you built this, what you were going for, what stage it's at.]**
 
-<!-- Optional: 1–2 sentences on where you are in development -->
-**Status:** [e.g. Beta — macOS only for now / v0.1 / etc.]
+**Status:** Beta — macOS (VST3, AU, Standalone). Windows build not tested yet.
 
 ---
 
 ## Demo
 
-<!-- Portfolio links recruiters actually click -->
-- **Video / audio:** [YouTube, SoundCloud, or portfolio page URL]
-- **Screenshots:** [Link or add images to a `/docs` folder and link them here]
+- **Video / audio:** [Add link]
+- **Screenshots:** [Add link]
 
 ---
 
 ## Download (beta)
 
-<!-- Only if you are hosting builds. If source-only, delete this section. -->
 | Platform | Format | Notes |
 |----------|--------|-------|
-| macOS | VST3 / AU / Standalone | [e.g. Apple Silicon, macOS 13+, unsigned — see install note below] |
+| macOS | VST3 / AU / Standalone | Build from source below, or [add GitHub Release link if you upload builds] |
 
-**Install (macOS):** [Your steps — e.g. copy `.vst3` to `~/Library/Audio/Plug-Ins/VST3/`, rescan in DAW, Gatekeeper / right-click Open if needed.]
+**Install (macOS):**
 
-**Tested in:** [e.g. Logic, Reaper, Ableton — list what you actually used.]
+1. Copy `Specdrift.vst3` to `~/Library/Audio/Plug-Ins/VST3/`
+2. Copy `Specdrift.component` to `~/Library/Audio/Plug-Ins/Components/` (AU)
+3. Rescan plugins in your DAW
+4. If macOS blocks the plugin: System Settings → Privacy & Security → Allow, or right-click → Open (Standalone `.app`)
+
+**Tested in:** [Add DAWs you used, e.g. Logic, Reaper]
 
 ---
 
@@ -41,19 +41,20 @@
 ### Requirements
 
 - CMake 3.22+
-- C++17 compiler (Xcode on macOS, Visual Studio on Windows)
-- [JUCE 7+](https://github.com/juce-framework/JUCE) — clone separately; this repo does not bundle JUCE
+- C++17 compiler (Xcode on macOS)
+- [JUCE 7+](https://github.com/juce-framework/JUCE) — clone separately; not included in this repo
 
 ### JUCE location
 
-Place JUCE as a sibling folder, or pass the path explicitly:
+Clone JUCE as a sibling folder:
 
 ```
-SPECDRIFT/          ← this repo
-JUCE/               ← clone JUCE here (sibling)
+parent/
+├── SPECDRIFT/    ← this repo
+└── JUCE/         ← git clone https://github.com/juce-framework/JUCE.git
 ```
 
-Or:
+Or pass the path explicitly:
 
 ```bash
 cmake -B build -S . -DJUCE_PATH=/path/to/JUCE
@@ -66,23 +67,13 @@ cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-Built plugins (with default JUCE settings):
+Output:
 
 ```
 build/Specdrift_artefacts/Release/VST3/Specdrift.vst3
 build/Specdrift_artefacts/Release/AU/Specdrift.component
 build/Specdrift_artefacts/Release/Standalone/Specdrift.app
 ```
-
-### Windows
-
-```bash
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
-```
-
-<!-- Fill in if you have actually built on Windows; otherwise delete or mark "not tested yet" -->
-[Windows notes — Visual Studio version, VST3 output path, etc.]
 
 ---
 
@@ -99,7 +90,6 @@ Source/
 
 ## Tech stack
 
-<!-- Factual list — adjust to match what you actually used -->
 - JUCE 7+
 - CMake
 - Formats: VST3, AU, Standalone
@@ -108,19 +98,16 @@ Source/
 
 ## Known issues
 
-<!-- Honest list for beta / portfolio — builds trust -->
-- [Issue 1]
-- [Issue 2]
+- FL Studio (macOS): possible crash on insert; mitigated in editor fonts — try AU or Standalone if VST3 fails. See `BUG_REPORT.md`.
 
 ---
 
 ## License
 
-<!-- Pick one and replace the placeholder -->
-[MIT / GPL-3.0 / All rights reserved — contact for permission / etc.]
+**[Choose: MIT / GPL-3.0 / All rights reserved]**
 
 ---
 
 ## Contact
 
-[Your name, portfolio site, email, or LinkedIn — whatever you want public.]
+**[Your portfolio, LinkedIn, or email]**
